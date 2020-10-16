@@ -3,12 +3,12 @@ import { getRepository } from 'typeorm';
 import orphanageView from '../views/orphanages_view';
 import * as Yup from 'yup';
 
-import Orphanages from '../models/Orphanage';
+import Orphanage from '../models/Orphanage';
 
 export default {
 
   async index(request: Request, response: Response) {
-    const orphanagesRepository = getRepository(Orphanages);
+    const orphanagesRepository = getRepository(Orphanage);
 
     const orphanages = await orphanagesRepository.find({
       relations: ['images']
@@ -20,7 +20,7 @@ export default {
   async show(request: Request, response: Response) {
     const { id } = request.params;
 
-    const orphanagesRepository = getRepository(Orphanages);
+    const orphanagesRepository = getRepository(Orphanage);
 
     const orphanage = await orphanagesRepository.findOneOrFail(id, {
       relations: ['images']
@@ -41,7 +41,7 @@ export default {
       open_weekends,
      } = request.body;
   
-     const orphanagesRepository = getRepository(Orphanages);
+     const orphanagesRepository = getRepository(Orphanage);
 
      const requestImages = request.files as Express.Multer.File[];
 

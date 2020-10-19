@@ -9,7 +9,7 @@ import { RectButton } from 'react-native-gesture-handler';
 import api from '../services/api';
 
 interface Orphanage {
-  id: string;
+  id: number;
   name: string;
   latitude: number;
   longitude: number;

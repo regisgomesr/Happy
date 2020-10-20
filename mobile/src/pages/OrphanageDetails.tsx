@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Image, View, ScrollView, Text, StyleSheet, Dimensions, Linking } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { Feather, FontAwesome } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import mapMarkerImg from '../images/map-marker.png';
-import { RectButton, TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useRoute } from '@react-navigation/native';
 import api from '../services/api';
+import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 
 interface OrphanageDetailsRouteParams {
   id: number;
@@ -30,9 +31,16 @@ export default function OrphanageDetails() {
   const route = useRoute();
   const [orphanage, setOrphanage] = useState<Orphanage>();
 
+  const [visible, setVisible] = useState(false);
+  const [imagesVisible, setImagesVisible] = useState(false);
+  const [postImageVisible, setPostImageVisible] = useState(false);
+
   const params = route.params as OrphanageDetailsRouteParams;
 
+
   useEffect(() => {
+    setTimeout(() => setVisible(!visible), 2500);
+    setTimeout(() => setImagesVisible(!imagesVisible), 3500);
     api.get(`orphanages/${params.id}`).then(response => {
       setOrphanage(response.data);
     })
@@ -52,6 +60,12 @@ export default function OrphanageDetails() {
 
   return (
     <ScrollView style={styles.container}>
+
+      <ShimmerPlaceHolder
+        style={styles.shimmerImagesContainer}
+        visible={imagesVisible}
+        stopAutoRun={imagesVisible}
+      >
       <View style={styles.imagesContainer}>
         <ScrollView horizontal pagingEnabled>
           {orphanage.images.map(image => {
@@ -64,10 +78,23 @@ export default function OrphanageDetails() {
           })}
         </ScrollView>
       </View>
+      </ShimmerPlaceHolder>
 
       <View style={styles.detailsContainer}>
-        <Text style={styles.title}>{orphanage.name}</Text>
-        <Text style={styles.description}>{orphanage.about}</Text>
+
+        <ShimmerPlaceHolder
+          style={styles.shimmerTitle}
+          visible={visible}
+        >
+          <Text style={styles.title}>{orphanage.name}</Text>
+        </ShimmerPlaceHolder>
+
+        <ShimmerPlaceHolder
+          style={styles.shimmerDescription}
+          visible={visible}
+        >
+          <Text style={styles.description}>{orphanage.about}</Text>
+        </ShimmerPlaceHolder>
 
         <View style={styles.mapContainer}>
           <MapView
@@ -83,6 +110,7 @@ export default function OrphanageDetails() {
             rotateEnabled={false}
             style={styles.mapStyle}
           >
+
             <Marker
               icon={mapMarkerImg}
               coordinate={{
@@ -90,6 +118,7 @@ export default function OrphanageDetails() {
                 longitude: orphanage.longitude,
               }}
             />
+
           </MapView>
 
           <TouchableOpacity onPress={handleOpenGoogleMapRoutes} style={styles.routesContainer}>
@@ -100,7 +129,13 @@ export default function OrphanageDetails() {
         <View style={styles.separator} />
 
         <Text style={styles.title}>Instruções para visita</Text>
-        <Text style={styles.description}>{orphanage.instructions}</Text>
+
+        <ShimmerPlaceHolder
+          style={styles.shimmerDescription}
+          visible={visible}
+        >
+          <Text style={styles.description}>{orphanage.instructions}</Text>
+        </ShimmerPlaceHolder>
 
         <View style={styles.scheduleContainer}>
           <View style={[styles.scheduleItem, styles.scheduleItemBlue]}>
@@ -135,6 +170,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  shimmerImagesContainer: {
+    height: 240,
+    width: Dimensions.get('window').width,
+  },
+
   imagesContainer: {
     height: 240,
   },
@@ -149,10 +189,20 @@ const styles = StyleSheet.create({
     padding: 24,
   },
 
+  shimmerTitle: {
+    height: 50,
+  },
+
   title: {
     color: '#4D6F80',
     fontSize: 30,
     fontFamily: 'Nunito_700Bold',
+  },
+
+  shimmerDescription: {
+    height: 40,
+    lineHeight: 24,
+    marginTop: 16,
   },
 
   description: {
